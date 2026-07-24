@@ -1,0 +1,19 @@
+replicaCount: 1
+
+image:
+  tag: dev
+
+config:
+  appEnv: development
+
+resources:
+  requests:
+    cpu: "100m"
+    memory: "128Mi"
+
+ingress:
+  hosts:
+    - host: dev.devops.local
+      paths:
+        - path: /
+          pathType: Prefix

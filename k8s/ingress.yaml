@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "devops-app.fullname" . }}
+  namespace: dev
+spec:
+  ingressClassName: nginx
+
+  rules:
+    - host: {{ (index .Values.ingress.hosts 0).host }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "devops-app.fullname" . }}
+                port:
+                  number: {{ .Values.service.port }}

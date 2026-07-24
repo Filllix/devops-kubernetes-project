@@ -1,0 +1,24 @@
+replicaCount: 5
+
+image:
+  tag: v3
+  pullPolicy: IfNotPresent
+
+config:
+  appEnv: production
+
+resources:
+  requests:
+    cpu: "500m"
+    memory: "512Mi"
+
+  limits:
+    cpu: "1000m"
+    memory: "1Gi"
+
+ingress:
+  hosts:
+    - host: devops.local
+      paths:
+        - path: /
+          pathType: Prefix

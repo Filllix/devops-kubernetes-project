@@ -1,0 +1,19 @@
+replicaCount: 2
+
+image:
+  tag: staging
+
+config:
+  appEnv: staging
+
+resources:
+  requests:
+    cpu: "200m"
+    memory: "256Mi"
+
+ingress:
+  hosts:
+    - host: staging.devops.local
+      paths:
+        - path: /
+          pathType: Prefix

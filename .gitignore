@@ -1,0 +1,26 @@
+# Node.js
+node_modules/
+npm-debug.log
+
+# Environment
+.env
+.env.*
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+.terraform.lock.hcl
+
+# Kubernetes
+*.log
+
+# VSCode
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Helm rendered file
+helm/devops-app/rendered.yaml
