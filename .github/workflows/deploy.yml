@@ -31,4 +31,3 @@ jobs:
         run: |
           docker push aldocloud/devops-kubernetes-project:latest
           docker push aldocloud/devops-kubernetes-project:${{ github.sha }}
-          
