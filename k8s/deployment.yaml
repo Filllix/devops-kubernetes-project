@@ -6,11 +6,11 @@ spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app: {{- include "devops-app.selectorLabels" . | nindent 4  }}
+      app: {{-include "devops-app.selectorLabels" . | nindent 4  }}
   template:
     metadata:
       labels:
-        app: {{- include "devops-app.selectorLabels" . | nindent 8 }}
+        app: {{-include "devops-app.selectorLabels" . | nindent 8 }}
     spec:
       containers:
         - name: devops-app
