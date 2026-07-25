@@ -28,3 +28,4 @@ jobs:
       - name: Push Image
         run: |
           docker push aldocloud/devops-kubernetes-project:latest
+          
