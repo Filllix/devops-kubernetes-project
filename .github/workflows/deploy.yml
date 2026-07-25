@@ -23,9 +23,10 @@ jobs:
 
       - name: Build Image
         run: |
-          -t aldocloud/devops-kubernetes-project:latest \
-          -t aldocloud/devops-kubernetes-project:${{ github.sha }} \
-          ./app
+          docker build \
+            -t aldocloud/devops-kubernetes-project:latest \
+            -t aldocloud/devops-kubernetes-project:${{ github.sha }} \
+            ./app
 
       - name: Push Image
         run: |
