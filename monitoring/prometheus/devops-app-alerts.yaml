@@ -1,0 +1,76 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: devops-app-alerts
+  namespace: monitoring
+  labels:
+    release: monitoring
+
+spec:
+  groups:
+    - name: devops-app.rules
+      rules:
+        - alert: DevOpsAppHighCPU
+          expr: |
+            (
+              sum by (pod) (
+                rate(container_cpu_usage_seconds_total{
+                  namespace="dev",
+                  pod=~"devops-app-.*",
+                  container="devops-app"
+                }[5m])
+              )
+              /
+              sum by (pod) (
+                kube_pod_container_resource_requests{
+                  namespace="dev",
+                  pod=~"devops-app-.*",
+                  container="devops-app",
+                  resource="cpu",
+                  unit="core"
+                }
+              )
+            ) * 100 > 80
+          for: 2m
+          labels:
+            severity: warning
+          annotations:
+            summary: "DevOps App CPU usage is high"
+            description: "Pod {{ $labels.pod }} CPU usage has exceeded 80% for more than 2 minutes."
+
+        - alert: DevOpsAppPodRestarting
+          expr: |
+            increase(
+              kube_pod_container_status_restarts_total{
+                namespace="dev",
+                pod=~"devops-app-.*"
+              }[10m]
+            ) > 0
+          for: 1m
+          labels:
+            severity: warning
+          annotations:
+            summary: "DevOps App pod restarted"
+            description: "Pod {{ $labels.pod }} has restarted within the last 10 minutes."
+
+        - alert: DevOpsAppTargetDown
+          expr: |
+            (
+              up{
+                namespace="dev",
+                job="devops-app"
+              } == 0
+            )
+            or
+            absent(
+              up{
+                namespace="dev",
+                job="devops-app"
+                }
+              )
+          for: 2m
+          labels:
+              severity: critical
+          annotations:
+              summary: "DevOps App target is down"
+              description: "Prometheus cannot scrape or discover any DevOps App target for more than 2 minutes."

@@ -1,0 +1,24 @@
+prometheus:
+  prometheusSpec:
+    serviceMonitorSelector:
+      matchLabels:
+        release: monitoring
+
+    serviceMonitorNamespaceSelector: {}
+
+    podMonitorSelector:
+      matchLabels:
+        release: monitoring
+
+    podMonitorNamespaceSelector: {}
+
+    additionalRulesForClusterRole:
+      - apiGroups:
+          - monitoring.coreos.com
+        resources:
+          - servicemonitors
+          - podmonitors
+        verbs:
+          - get
+          - list
+          - watch
