@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: allowed-client
+  namespace: dev
+  labels:
+    access: "true"
+
+spec:
+  containers:
+  - name: busybox
+    image: busybox
+
+    command:
+      - sleep
+      - "3600"
+
+    resources:
+      requests:
+        cpu: 100m
+        memory: 64Mi
+
+      limits:
+        cpu: 200m
+        memory: 128Mi

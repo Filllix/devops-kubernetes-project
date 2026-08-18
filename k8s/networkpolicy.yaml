@@ -1,0 +1,45 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-devops-app
+  namespace: dev
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: devops-app
+
+  policyTypes:
+    - Ingress
+
+  ingress:
+    # Izinkan dari NGINX Ingress Controller
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: ingress-nginx
+      ports:
+        - protocol: TCP
+          port: 3000
+
+    # Izinkan pod internal untuk testing
+    - from:
+        - podSelector:
+            matchLabels:
+              access: "true"
+      ports:
+        - protocol: TCP
+          port: 3000
+    - from:
+      - namespaceSelector:
+          matchLabels:
+            kubernetes.io/metadata.name: monitoring
+
+      ports:
+        - port: 3000
+
+        - from:
+          - podSelector:
+              matchLabels:
+                access: "true"
+          ports:
+            - port: 3000

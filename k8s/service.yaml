@@ -1,12 +1,18 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "devops-app.fullname" . }}
+  name: devops-app
   namespace: dev
+  labels:
+    app.kubernetes.io/name: devops-app
+    app.kubernetes.io/instance: devops-app
 spec:
   selector:
-    app: {{ include "devops-app.name" . }}
+    app.kubernetes.io/name: devops-app
+    app.kubernetes.io/instance: devops-app
   ports:
-    - port: {{ .Values.service.port }}
-      targetPort: 3000
+    - name: http
+      port: 80
+      targetPort: http
+      protocol: TCP
   type: ClusterIP

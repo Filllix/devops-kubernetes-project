@@ -1,7 +1,13 @@
 const express = require("express");
 const os = require("os");
+const client = require("prom-client");
 
 const app = express();
+const register = client.register;
+
+client.collectDefaultMetrics({
+    register
+});
 const PORT = process.env.PORT || 3000;
 
 // HEALTH check endpoint
@@ -44,6 +50,11 @@ app.get("/", (req, res) => {
     <p>Time: ${new Date()}</p>
     <p>Status: Healthy</p>
   `);
+});
+
+app.get("/metrics", async (req, res) => {
+    res.set("Content-Type", register.contentType);
+    res.end(await register.metrics());
 });
 
 app.listen(PORT, () => {
