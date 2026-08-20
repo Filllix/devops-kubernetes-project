@@ -21,6 +21,14 @@ spec:
     server: https://kubernetes.default.svc
     namespace: dev
 
+  ignoreDifferences:
+    - group: apps
+      kind: Deployment
+      name: devops-app
+      namespace: dev
+      jsonPointers:
+        - /spec/replicas
+
   syncPolicy:
     automated:
       prune: true
@@ -28,3 +36,4 @@ spec:
 
     syncOptions:
       - CreateNamespace=true
+      - RespectIgnoreDifferences=true
