@@ -5,8 +5,13 @@ on:
     branches:
       - main
 
+  pull_request:
+    branches:
+      - main
+
 jobs:
-  build-and-push:
+  application-validation:
+    name: Application Validation
     runs-on: ubuntu-latest
 
     steps:
@@ -17,13 +22,42 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: npm
+          cache-dependency-path: app/package-lock.json
 
       - name: Install Dependencies
         working-directory: ./app
         run: npm ci
 
-      - name: Build Docker Image
+      - name: Validate Node.js Syntax
+        working-directory: ./app
+        run: node --check server.js
+
+  helm-validation:
+    name: Helm Validation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Helm
+        uses: azure/setup-helm@v4
+
+      - name: Helm Lint
+        run: helm lint ./helm/devops-app
+
+      - name: Render Helm Templates
         run: |
-          docker build \
-          -t ${{ secrets.DOCKER_USERNAME }}/devops-kubernetes-project:${{ github.sha }} \
-          ./app
+          helm template devops-app ./helm/devops-app \
+            -n dev \
+            -f ./helm/devops-app/values.yaml \
+            > /tmp/rendered-manifests.yaml
+
+      - name: Render Production Helm Templates
+        run: |
+          helm template devops-app ./helm/devops-app \
+            -n dev \
+            -f ./helm/devops-app/values.yaml \
+            -f ./helm/devops-app/values-prod.yaml \
+            > /tmp/rendered-prod-manifests.yaml
