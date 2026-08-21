@@ -11,19 +11,21 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 env:
   IMAGE_NAME: ${{ secrets.DOCKER_USERNAME }}/devops-kubernetes-project
 
 jobs:
   container:
-    name: Build Scan and Push
+    name: Build Scan Push and Update GitOps
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -59,3 +61,26 @@ jobs:
 
       - name: Push Latest Image
         run: docker push ${{ env.IMAGE_NAME }}:latest
+
+      - name: Update Helm Image Tag
+        run: |
+          sed -i "s/^  tag: .*/  tag: ${GITHUB_SHA}/" helm/devops-app/values.yaml
+
+      - name: Verify Updated Image Tag
+        run: |
+          grep -A3 "^image:" helm/devops-app/values.yaml
+
+      - name: Commit GitOps Image Update
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add helm/devops-app/values.yaml
+
+          if git diff --cached --quiet; then
+            echo "No image tag changes detected."
+            exit 0
+          fi
+
+          git commit -m "gitops: deploy image ${GITHUB_SHA}"
+          git push origin main
