@@ -18,6 +18,10 @@ spec:
       - name: namespace
         value: dev
         matchType: "="
+      
+      - name: severity
+        value: "warning|critical"
+        matchType: "=~"
 
   receivers:
     - name: discord
