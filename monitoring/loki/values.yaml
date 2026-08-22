@@ -1,0 +1,87 @@
+deploymentMode: SingleBinary
+
+loki:
+  auth_enabled: false
+  useTestSchema: true
+
+  commonConfig:
+    path_prefix: /tmp/loki
+    replication_factor: 1
+
+  storage:
+    type: filesystem
+    filesystem:
+      chunks_directory: /tmp/loki/chunks
+      rules_directory: /tmp/loki/rules
+
+  rulerConfig:
+    wal:
+      dir: /tmp/loki/ruler-wal
+
+singleBinary:
+  replicas: 1
+
+  persistence:
+    enabled: false
+
+backend:
+  replicas: 0
+
+read:
+  replicas: 0
+
+write:
+  replicas: 0
+
+ingester:
+  replicas: 0
+
+querier:
+  replicas: 0
+
+queryFrontend:
+  replicas: 0
+
+queryScheduler:
+  replicas: 0
+
+distributor:
+  replicas: 0
+
+compactor:
+  replicas: 0
+
+indexGateway:
+  replicas: 0
+
+bloomPlanner:
+  replicas: 0
+
+bloomBuilder:
+  replicas: 0
+
+bloomGateway:
+  replicas: 0
+
+chunksCache:
+  enabled: false
+
+resultsCache:
+  enabled: false
+
+ruler:
+  enabled: false
+
+sidecar:
+  rules:
+    enabled: false
+
+gateway:
+  enabled: true
+
+monitoring:
+  selfMonitoring:
+    enabled: false
+
+test:
+  enabled: false
