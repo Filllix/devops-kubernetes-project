@@ -3,6 +3,26 @@ const os = require("os");
 const client = require("prom-client");
 
 const app = express();
+app.use((req, res, next) => {
+  const start = Date.now();
+
+  res.on("finish", () => {
+    const duration = Date.now() - start;
+
+    console.log(
+      JSON.stringify({
+        timestamp: new Date().toISOString(),
+        method: req.method,
+        path: req.originalUrl,
+        status: res.statusCode,
+        duration_ms: duration,
+      })
+    );
+  });
+
+  next();
+});
+
 const register = client.register;
 
 client.collectDefaultMetrics({
