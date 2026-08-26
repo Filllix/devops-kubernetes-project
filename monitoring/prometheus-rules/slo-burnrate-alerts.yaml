@@ -1,0 +1,36 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: devops-app-slo-burnrate-alerts
+  namespace: dev
+  labels:
+    release: monitoring
+
+spec:
+  groups:
+    - name: devops-app-slo-burnrate
+      rules:
+
+        - alert: DevOpsAppHighErrorBudgetBurn
+          expr: |
+            (
+              devops_app:http_error_rate:5m / 0.001
+            ) > 14.4
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "DevOps App is burning error budget too fast"
+            description: "The 5-minute SLO burn rate is above 14.4x."
+
+        - alert: DevOpsAppWarningErrorBudgetBurn
+          expr: |
+            (
+              devops_app:http_error_rate:5m / 0.001
+            ) > 6
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: "DevOps App error budget burn is elevated"
+            description: "The 5-minute SLO burn rate is above 6x."

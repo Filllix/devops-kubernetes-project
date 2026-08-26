@@ -1,0 +1,33 @@
+- record: devops_app:latency_slo_ratio:5m
+  expr: |
+    (
+      sum(
+        rate(
+          http_request_duration_seconds_bucket{
+            le="0.5",
+            route!="/health",
+            route!="/metrics"
+          }[5m]
+        )
+      )
+      /
+      sum(
+        rate(
+          http_request_duration_seconds_count{
+            route!="/health",
+            route!="/metrics"
+          }[5m]
+        )
+      )
+    )
+    and on()
+    (
+      sum(
+        rate(
+          http_request_duration_seconds_count{
+            route!="/health",
+            route!="/metrics"
+          }[5m]
+        )
+      ) > 0
+    )
