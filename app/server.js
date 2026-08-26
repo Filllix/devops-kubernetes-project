@@ -110,6 +110,13 @@ app.get("/metrics", async (req, res) => {
   res.end(await register.metrics());
 });
 
+app.get("/error", (req, res) => {
+  res.status(500).json({
+    status: "ERROR",
+    message: "Intentional test error",
+  });
+});
+
 app.listen(PORT, () => {
   console.log(`Application running on port ${PORT}`);
 });
