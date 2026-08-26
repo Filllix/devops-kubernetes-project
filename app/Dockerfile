@@ -19,6 +19,8 @@ FROM node:22-alpine
 
 WORKDIR /app
 
+RUN apk upgrade --no-cache
+
 ENV NODE_ENV=production
 
 COPY --from=builder --chown=node:node /app /app
