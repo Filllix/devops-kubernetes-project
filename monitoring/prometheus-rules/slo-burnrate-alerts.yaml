@@ -19,6 +19,7 @@ spec:
           for: 5m
           labels:
             severity: critical
+            namespace: dev
           annotations:
             summary: "DevOps App is burning error budget too fast"
             description: "The 5-minute SLO burn rate is above 14.4x."
@@ -31,6 +32,7 @@ spec:
           for: 15m
           labels:
             severity: warning
+            namespace: dev
           annotations:
             summary: "DevOps App error budget burn is elevated"
             description: "The 5-minute SLO burn rate is above 6x."
