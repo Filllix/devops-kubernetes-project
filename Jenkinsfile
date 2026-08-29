@@ -90,7 +90,6 @@ pipeline {
                               --context="${WORKSPACE}/app" \
                               --dockerfile="${WORKSPACE}/app/Dockerfile" \
                               --destination="${IMAGE_REPO}:${IMAGE_TAG}" \
-                              --destination="${IMAGE_REPO}:latest"
 
                             rm -f /kaniko/.docker/config.json
                         '''
@@ -121,6 +120,41 @@ pipeline {
 
         failure {
             echo 'Pipeline failed.'
+        }
+    }
+}
+        stage('GitOps Update Image Tag') {
+            steps {
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'github-creds',
+                        usernameVariable: 'GIT_USER',
+                        passwordVariable: 'GIT_TOKEN'
+                    )
+            ]) {
+                sh '''
+                    sed -i "s/^  tag: .*/  tag: ${IMAGE_TAG}/" helm/devops-app/values.yaml
+
+                    echo "Updated image configuration:"
+                    grep -A3 "^image:" helm/devops-app/values.yaml
+
+                    git config user.name "jenkins"
+                    git config user.email "jenkins@local"
+
+                    git add helm/devops-app/values.yaml
+
+                    if git diff --cached --quiet; then
+                        echo "No GitOps change required."
+                        exit 0
+                    fi
+
+                    git commit -m "gitops: deploy image ${IMAGE_TAG}"
+
+                    git remote set-url origin \
+                        https://${GIT_USER}:${GIT_TOKEN}@github.com/Filllix/devops-kubernetes-project.git
+
+                    git push origin HEAD:main
+                '''
         }
     }
 }
