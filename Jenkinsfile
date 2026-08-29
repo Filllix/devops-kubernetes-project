@@ -98,21 +98,21 @@ pipeline {
                 }
             }
         }
-    }
 
-    stage('Trivy Scan') {
-    steps {
-        container('trivy') {
-            sh '''
-                trivy image \
-                  --severity HIGH,CRITICAL \
-                  --ignore-unfixed \
-                  --exit-code 1 \
-                  ${IMAGE_REPO}:${IMAGE_TAG}
-            '''
+        stage('Trivy Scan') {
+            steps {
+                container('trivy') {
+                    sh '''
+                        trivy image \
+                          --severity HIGH,CRITICAL \
+                          --ignore-unfixed \
+                          --exit-code 1 \
+                          ${IMAGE_REPO}:${IMAGE_TAG}
+                    '''
+                }
+            }
         }
     }
-}
 
     post {
         success {
