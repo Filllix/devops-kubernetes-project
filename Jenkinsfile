@@ -31,11 +31,27 @@ pipeline {
                 }
             }
         }
+
+        stage('Helm Lint') {
+            steps {
+                container('helm') {
+                    sh 'helm lint helm/devops-app'
+                }
+            }
+        }
+
+        stage('Helm Template') {
+            steps {
+                container('helm') {
+                    sh 'helm template devops-app helm/devops-app > /tmp/rendered.yaml'
+                }
+            }
+        }
     }
 
     post {
         success {
-            echo 'Node.js pipeline completed successfully.'
+            echo 'Node.js and Helm validation completed successfully.'
         }
 
         failure {
