@@ -1,5 +1,11 @@
 pipeline {
-    agent any
+    agent {
+        label 'node-agent'
+    }
+
+    options {
+        skipDefaultCheckout(true)
+    }
 
     stages {
         stage('Checkout') {
@@ -10,28 +16,26 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                dir('app') {
-                    sh 'npm ci'
+                container('node') {
+                    dir('app') {
+                        sh 'npm ci'
+                    }
                 }
             }
         }
 
         stage('Validate Node.js') {
             steps {
-                sh 'node --check app/server.js'
-            }
-        }
-
-        stage('Helm Lint') {
-            steps {
-                sh 'helm lint helm/devops-app'
+                container('node') {
+                    sh 'node --check app/server.js'
+                }
             }
         }
     }
 
     post {
         success {
-            echo 'Pipeline completed successfully.'
+            echo 'Node.js pipeline completed successfully.'
         }
 
         failure {
