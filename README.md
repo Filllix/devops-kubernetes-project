@@ -1,123 +1,170 @@
 # DevOps Kubernetes Project
 
-An end-to-end Kubernetes learning project focused on deploying, scaling, securing, monitoring, and operating a containerized application using production-oriented DevOps practices.
+An end-to-end DevOps and Kubernetes engineering project focused on building, securing, observing, automating, and deploying a containerized application from a local Kubernetes environment to AWS EKS.
 
-This project started as a simple Node.js application deployment and gradually evolved into a Kubernetes environment with Helm, autoscaling, network policies, persistent storage, Prometheus monitoring, Grafana dashboards, Alertmanager, and Discord notifications.
+This project started as a Kubernetes learning lab using Kind and gradually evolved into a production-oriented DevOps platform implementing:
 
-The main goal of this project is not only to deploy an application to Kubernetes, but also to understand how Kubernetes workloads behave under load, failure, scaling, and monitoring scenarios.
+- Kubernetes workload management
+- Helm packaging
+- Horizontal Pod Autoscaling
+- CI/CD and DevSecOps
+- Jenkins on Kubernetes
+- GitOps with Argo CD
+- Prometheus and Grafana observability
+- Centralized logging with Loki and Grafana Alloy
+- SLO and Error Budget monitoring
+- Terraform Infrastructure as Code
+- AWS EKS
+- AWS Application Load Balancer
+- Terraform remote state using Amazon S3
+
+The primary goal of this project is not only to deploy an application, but to understand how a modern DevOps platform behaves under deployment, scaling, failure, security scanning, monitoring, GitOps reconciliation, and cloud infrastructure scenarios.
 
 ---
 
-## Project Highlights
+# Project Status
 
-This project implements:
-
-- Containerized Node.js application
-- Kubernetes Deployment and Service
-- ConfigMap and Secret management
-- Resource Requests and Limits
-- Liveness, Readiness, and Startup Probes
-- Rolling Update and Rollback
-- Horizontal Pod Autoscaler
-- Metrics Server
-- NGINX Ingress Controller
-- NetworkPolicy
-- ResourceQuota
-- RBAC and ServiceAccount
-- Persistent Volume and Persistent Volume Claim
-- Helm Chart
-- Prometheus monitoring
-- ServiceMonitor
-- Grafana dashboard
-- Prometheus Alert Rules
-- Alertmanager
-- Discord alert notification
-- Load testing for HPA validation
-- Monitoring-as-Code using Grafana dashboard provisioning
+| Phase | Status |
+|---|---|
+| Kubernetes Fundamentals | ✅ Completed |
+| Helm & Kubernetes Security | ✅ Completed |
+| Monitoring & Alerting | ✅ Completed |
+| CI/CD & DevSecOps | ✅ Completed |
+| GitOps / Argo CD | ✅ Completed |
+| Centralized Logging | ✅ Completed |
+| Advanced Observability / SLO | ✅ Completed |
+| Jenkins CI/CD | ✅ Completed |
+| Terraform + AWS EKS | ✅ Completed |
+| Ansible | ⬜ Next |
+| Production Hardening | ⬜ Planned |
+| Final Portfolio Documentation | 🟡 In Progress |
 
 ---
 
 # Architecture
 
-```text
-                        ┌───────────────────────┐
-                        │       Developer       │
-                        └───────────┬───────────┘
-                                    │
-                                    ▼
-                             Docker Image
-                                    │
-                                    ▼
-                        ┌───────────────────────┐
-                        │  Kubernetes Cluster   │
-                        │        (Kind)         │
-                        └───────────┬───────────┘
-                                    │
-            ┌───────────────────────┼────────────────────────┐
-            │                       │                        │
-            ▼                       ▼                        ▼
-       Deployment                Service                ConfigMap
-            │                       │                        │
-            │                       │                     Secret
-            │                       │
-            ▼                       ▼
-          Pods                  NGINX Ingress
-            │                       │
-            │                       ▼
-            │                    Browser
-            │
-            ├───────────────┐
-            │               │
-            ▼               ▼
-      Metrics Server   ServiceMonitor
-            │               │
-            ▼               ▼
-           HPA          Prometheus
-            │               │
-            │               ├───────────────┐
-            │               │               │
-            ▼               ▼               ▼
-      Auto Scaling       Grafana      PrometheusRule
-       2 → 10 Pods        Dashboard           │
-                                             ▼
-                                        Alertmanager
-                                             │
-                                             ▼
-                                      Discord Alerts
-```
-
----
-
-# Technology Stack
-
-| Category | Technology |
-|---|---|
-| Application | Node.js, Express |
-| Containerization | Docker |
-| Container Orchestration | Kubernetes |
-| Local Kubernetes | Kind |
-| Package Management | Helm |
-| Ingress | NGINX Ingress Controller |
-| Autoscaling | Horizontal Pod Autoscaler |
-| Metrics | Metrics Server |
-| Monitoring | Prometheus |
-| Kubernetes Monitoring | kube-prometheus-stack |
-| Dashboard | Grafana |
-| Alerting | PrometheusRule, Alertmanager |
-| Notifications | Discord Webhook |
-| Networking Security | Kubernetes NetworkPolicy |
-| Access Control | RBAC, ServiceAccount |
-| Storage | PV, PVC |
-| Load Testing | BusyBox load-generator |
-
----
-
-# Repository Structure
+## Current AWS Architecture
 
 ```text
+                         Developer
+                             │
+                             ▼
+                           GitHub
+                             │
+                 ┌───────────┴───────────┐
+                 │                       │
+                 ▼                       ▼
+              Jenkins                 Argo CD
+                 │                       │
+                 ▼                       │
+        Kubernetes Build Agent           │
+                 │                       │
+        ┌────────┼─────────┐             │
+        │        │         │             │
+        ▼        ▼         ▼             │
+      Node      Helm     Kaniko           │
+                         │                │
+                         ▼                │
+                    Docker Hub            │
+                         │                │
+                         ▼                │
+                       Trivy              │
+                         │                │
+                         ▼                │
+                 GitOps Image Update ─────┘
+                                          │
+                                          ▼
+                                    Amazon EKS
+                                          │
+                         ┌────────────────┼────────────────┐
+                         │                │                │
+                         ▼                ▼                ▼
+                    Deployment         Service         HPA
+                         │                │
+                         ▼                ▼
+                       Pods       ServiceMonitor
+                         │                │
+                         │                ▼
+                         │            Prometheus
+                         │                │
+                         │          ┌─────┴─────┐
+                         │          ▼           ▼
+                         │       Grafana   Alertmanager
+                         │
+                         ▼
+              AWS Load Balancer Controller
+                         │
+                         ▼
+                 Application Load Balancer
+                         │
+                         ▼
+                      Internet
+Infrastructure Architecture
+
+AWS infrastructure is provisioned using Terraform.
+
+Terraform
+   │
+   ├── VPC
+   │    ├── Public Subnet A
+   │    ├── Public Subnet B
+   │    ├── Private Subnet A
+   │    └── Private Subnet B
+   │
+   ├── Internet Gateway
+   ├── Route Tables
+   │
+   ├── IAM
+   │    ├── EKS Cluster Role
+   │    ├── EKS Node Role
+   │    ├── OIDC Provider
+   │    └── AWS Load Balancer Controller Role
+   │
+   ├── Amazon EKS
+   │    └── Managed Node Group
+   │
+   └── Amazon S3
+        └── Terraform Remote State
+
+Terraform state is stored remotely in Amazon S3 with:
+
+Server-side encryption
+S3 versioning
+Public access blocking
+State locking
+Environment-specific state path
+s3://<terraform-state-bucket>/eks/dev/terraform.tfstate
+Technology Stack
+Category	Technology
+Application	Node.js, Express
+Containerization	Docker
+Container Registry	Docker Hub
+Kubernetes	Kubernetes, Kind, Amazon EKS
+Package Management	Helm
+Infrastructure as Code	Terraform
+Cloud Platform	AWS
+Cloud Kubernetes	Amazon EKS
+Cloud Networking	VPC, Subnet, Internet Gateway, Route Table
+Cloud Load Balancing	AWS Application Load Balancer
+Ingress	AWS Load Balancer Controller
+CI/CD	GitHub Actions, Jenkins
+Container Build	Docker Buildx, Kaniko
+Security Scanning	Trivy
+GitOps	Argo CD
+Metrics	Prometheus
+Dashboard	Grafana
+Logging	Loki, Grafana Alloy
+Alerting	PrometheusRule, Alertmanager
+Notifications	Discord Webhook
+Autoscaling	Horizontal Pod Autoscaler
+Security	RBAC, NetworkPolicy, ServiceAccount, IRSA
+Terraform State	Amazon S3
+Load Testing	BusyBox Load Generator
+Repository Structure
 devops-kubernetes-project/
 │
 ├── app/
+│   ├── Dockerfile
 │   ├── package.json
 │   ├── package-lock.json
 │   └── server.js
@@ -125,859 +172,770 @@ devops-kubernetes-project/
 ├── helm/
 │   └── devops-app/
 │       ├── templates/
-│       │   ├── deployment.yaml
-│       │   ├── service.yaml
-│       │   ├── servicemonitor.yaml
-│       │   ├── networkpolicy.yaml
-│       │   ├── resourcequota.yaml
-│       │   ├── serviceaccount.yaml
-│       │   ├── role.yaml
-│       │   └── rolebinding.yaml
-│       │
 │       ├── values.yaml
 │       └── values-prod.yaml
 │
-├── k8s/
-│   ├── deployment.yaml
-│   ├── service.yaml
-│   ├── ingress.yaml
-│   ├── hpa.yaml
-│   ├── networkpolicy.yaml
-│   │
-│   ├── networkpolicy/
-│   │   ├── allowed-client.yaml
-│   │   └── blocked-client.yaml
-│   │
-│   └── storage/
-│       ├── pv.yaml
-│       ├── pvc.yaml
-│       └── storage-test-pod.yaml
+├── terraform/
+│   ├── backend.tf
+│   ├── backend-resources.tf
+│   ├── providers.tf
+│   ├── variables.tf
+│   ├── outputs.tf
+│   ├── vpc.tf
+│   ├── iam.tf
+│   ├── eks.tf
+│   ├── alb-controller.tf
+│   └── alb-controller-iam-policy.json
+│
+├── argocd/
+│   └── devops-app-eks.yaml
 │
 ├── monitoring/
-│   ├── values.yaml
-│   │
 │   ├── prometheus/
-│   │   ├── servicemonitor.yaml
-│   │   └── devops-app-alerts.yaml
-│   │
+│   ├── prometheus-rules/
 │   ├── alertmanager/
-│   │   └── discord-alertmanager-config.yaml
-│   │
 │   └── grafana/
-│       └── dashboard/
-│           ├── devops-app-dashboard.json
-│           └── devops-app-dashboard-configmap.yaml
 │
+├── logging/
+│
+├── jenkins/
+│   ├── jenkins.yaml
+│   └── jenkins-rbac.yaml
+│
+├── k8s/
+│
+├── .github/
+│   └── workflows/
+│
+├── Jenkinsfile
 ├── load-generator.yaml
 └── README.md
-```
+Application
 
----
+The application is a Node.js / Express service exposing several endpoints.
 
-# Application Endpoints
+Endpoint	Description
+/	Main application
+/health	Health check
+/info	Application information
+/secret	Secret injection verification
+/metrics	Prometheus metrics
+/error	Intentional HTTP 500 endpoint for SLO testing
 
-| Endpoint | Description |
-|---|---|
-| `/` | Main application page |
-| `/health` | Application health endpoint |
-| `/info` | Environment and application information |
-| `/secret` | Verify Kubernetes Secret injection |
-| `/metrics` | Prometheus application metrics |
+The application also exposes custom Prometheus metrics:
 
-Example:
+http_requests_total
+http_request_duration_seconds
 
-```powershell
-curl http://localhost:3000/health
-```
+These metrics are used for availability, latency, error-rate, and SLO calculations.
 
-Prometheus metrics:
+Kubernetes Features
 
-```powershell
-curl http://localhost:3000/metrics
-```
+The project implements:
 
----
+Namespace isolation
+Deployment
+ReplicaSet
+Service
+ConfigMap
+Secret
+Resource Requests and Limits
+Liveness Probe
+Readiness Probe
+Startup Probe
+Rolling Update
+Rollback
+Horizontal Pod Autoscaler
+Metrics Server
+NetworkPolicy
+ResourceQuota
+RBAC
+ServiceAccount
+Persistent Volume
+Persistent Volume Claim
+Helm
+Ingress
+ServiceMonitor
+Horizontal Pod Autoscaler
 
-# Running the Application Locally
+The application uses CPU-based Horizontal Pod Autoscaling.
 
-```powershell
-cd app
-npm install
-npm start
-```
-
-Application:
-
-```text
-http://localhost:3000
-```
-
----
-
-# Kubernetes Deployment
-
-Create or deploy Kubernetes resources:
-
-```powershell
-kubectl apply -f k8s/
-```
-
-Check Pods:
-
-```powershell
-kubectl get pods -n dev
-```
-
-Check Services:
-
-```powershell
-kubectl get svc -n dev
-```
-
-Check Deployment:
-
-```powershell
-kubectl get deployment -n dev
-```
-
----
-
-# Helm Deployment
-
-The application is also packaged using Helm.
-
-Example deployment:
-
-```powershell
-helm upgrade --install devops-app .\helm\devops-app `
-  -n dev `
-  --create-namespace `
-  -f .\helm\devops-app\values.yaml
-```
-
-Production values:
-
-```powershell
-helm upgrade --install devops-app .\helm\devops-app `
-  -n dev `
-  -f .\helm\devops-app\values.yaml `
-  -f .\helm\devops-app\values-prod.yaml
-```
-
-Validate the Helm Chart:
-
-```powershell
-helm lint .\helm\devops-app
-```
-
-Render the manifests before deployment:
-
-```powershell
-helm template devops-app .\helm\devops-app -n dev
-```
-
----
-
-# Kubernetes Health Probes
-
-The application uses Kubernetes health probes to improve workload reliability.
-
-Implemented probes:
-
-- Liveness Probe
-- Readiness Probe
-- Startup Probe
-
-These probes allow Kubernetes to detect unhealthy application instances and restart or temporarily remove them from Service traffic when necessary.
-
----
-
-# Resource Management
-
-CPU and memory requests/limits are configured for the application.
-
-Example:
-
-```yaml
-resources:
-  requests:
-    cpu: 100m
-    memory: 64Mi
-```
-
-Resource Requests are especially important because the Horizontal Pod Autoscaler calculates CPU utilization relative to the configured CPU request.
-
----
-
-# Horizontal Pod Autoscaler
-
-The application uses Kubernetes HPA based on CPU utilization.
-
-Configuration:
-
-```text
 Minimum Replicas : 2
 Maximum Replicas : 10
 CPU Target       : 50%
-```
 
-Check HPA:
+Load testing successfully demonstrated automatic scale-out from a small number of replicas up to the configured maximum.
 
-```powershell
-kubectl get hpa -n dev
-```
+The project also solves a common GitOps issue where Argo CD and HPA compete over the Deployment replica count.
 
-Live monitoring:
+Argo CD is configured to ignore:
 
-```powershell
-kubectl get hpa -n dev -w
-```
+/spec/replicas
 
----
+for the application Deployment while still managing the remaining Deployment configuration.
 
-# HPA Load Test
+Helm
 
-A dedicated load-generator Deployment is included to validate autoscaling behavior.
+The application is packaged using a reusable Helm Chart.
 
-Start the load generator:
+Validation:
 
-```powershell
-kubectl scale deployment load-generator -n dev --replicas=3
-```
+helm lint helm/devops-app
 
-Monitor application CPU:
+Manifest rendering:
 
-```powershell
-kubectl top pods -n dev
-```
+helm template devops-app helm/devops-app
 
-Monitor autoscaling:
+Deployment:
 
-```powershell
-kubectl get hpa -n dev -w
-```
+helm upgrade --install devops-app `
+  helm/devops-app `
+  -n dev
 
-During testing, the application successfully scaled from:
+The Helm chart manages:
 
-```text
-2 Pods
+Deployment
+Service
+Ingress
+HPA
+ConfigMap
+Secret
+ServiceAccount
+RBAC
+NetworkPolicy
+ResourceQuota
+ServiceMonitor
+
+For AWS EKS, the chart also manages the ALB Ingress configuration.
+
+CI/CD — GitHub Actions
+
+GitHub Actions provides the first CI/CD implementation.
+
+Pipeline:
+
+Git Push
+   ↓
+npm ci
+   ↓
+Node.js Validation
+   ↓
+Helm Lint
+   ↓
+Helm Template
+   ↓
+Docker Build
+   ↓
+Trivy Scan
+   ↓
+Docker Hub
+   ↓
+Update Helm Image Tag
+   ↓
+Git Commit
+   ↓
+Argo CD
+
+The container image uses immutable Git SHA tags for deployment.
+
+DevSecOps
+
+Trivy is used as a security gate for container images.
+
+The pipeline scans:
+
+HIGH
+CRITICAL
+
+vulnerabilities.
+
+A pipeline fails when unacceptable vulnerabilities are detected.
+
+During development, a real OpenSSL vulnerability in the Alpine base image was detected and fixed by upgrading packages during the runtime image build.
+
+Jenkins CI/CD
+
+A second CI/CD implementation was built using Jenkins running inside Kubernetes.
+
+Jenkins uses dynamic Kubernetes agents rather than executing build workloads directly on the controller.
+
+Pipeline architecture:
+
+Jenkins Controller
+       │
+       ▼
+Kubernetes Agent Pod
+       │
+ ┌─────┼──────┬─────────┐
+ ▼     ▼      ▼         ▼
+Node   Helm   Kaniko   Trivy
+
+The Jenkins pipeline performs:
+
+Git checkout
+Git SHA generation
+npm ci
+Node.js validation
+Helm lint
+Helm template
+Kaniko image build
+Docker Hub push
+Trivy security scan
+GitOps Helm image update
+Git push
+Argo CD deployment
+
+Final workflow:
+
+GitHub
   ↓
-3 Pods
+Jenkins
   ↓
-6 Pods
+Kaniko
   ↓
-10 Pods
-```
+Docker Hub
+  ↓
+Trivy
+  ↓
+Update values.yaml
+  ↓
+GitHub
+  ↓
+Argo CD
+  ↓
+Kubernetes
+GitOps with Argo CD
 
-Observed CPU behavior:
+Argo CD manages application deployment from Git.
 
-```text
-6%
-↓
-64%
-↓
-144%
-↓
-115%
-↓
-85%
-↓
-~50%
-```
+Git Repository
+      ↓
+Argo CD
+      ↓
+Helm Chart
+      ↓
+Kubernetes
 
-As additional replicas became available, the workload was distributed across the new Pods and CPU utilization moved toward the HPA target.
+Configuration:
 
-Stop the load generator:
+Repository : Filllix/devops-kubernetes-project
+Branch     : main
+Path       : helm/devops-app
+Namespace  : dev
 
-```powershell
-kubectl scale deployment load-generator -n dev --replicas=0
-```
+Features:
 
-The HPA then automatically performs scale-down after its stabilization period.
+Automated synchronization
+Self healing
+Automatic pruning
+HPA replica ignore configuration
+Git SHA image deployment
 
----
+Argo CD was first validated on the local Kind cluster and later deployed directly into Amazon EKS.
 
-# NetworkPolicy
+Self-Healing Validation
 
-Network policies are implemented to restrict traffic between workloads.
-
-The project includes examples for:
-
-- Allowed client
-- Blocked client
-- Application-specific ingress rules
+Argo CD self-healing was tested by manually changing live Kubernetes configuration.
 
 Example:
 
-```powershell
-kubectl get networkpolicy -n dev
-```
+Git desired state:
+imagePullPolicy: IfNotPresent
 
-Inspect policy:
+Manual cluster modification:
+imagePullPolicy: Always
 
-```powershell
-kubectl describe networkpolicy -n dev
-```
+Argo CD:
+detect drift
+↓
+self heal
+↓
+IfNotPresent restored
+Monitoring
 
-This was used to understand Kubernetes network isolation and workload-level access control.
+The monitoring stack uses:
 
----
+kube-prometheus-stack
 
-# Persistent Storage
+Architecture:
 
-The project includes Kubernetes persistent storage resources:
-
-- PersistentVolume
-- PersistentVolumeClaim
-- Storage test Pod
-
-Example:
-
-```powershell
-kubectl get pv
-kubectl get pvc -n dev
-```
-
----
-
-# RBAC
-
-The Helm Chart includes:
-
-- ServiceAccount
-- Role
-- RoleBinding
-
-This separates application permissions from the default Kubernetes ServiceAccount and provides a foundation for least-privilege access.
-
----
-
-# Monitoring Architecture
-
-The monitoring stack uses `kube-prometheus-stack`.
-
-```text
 Application
     │
     │ /metrics
     ▼
 Service
-    │
     ▼
 ServiceMonitor
-    │
     ▼
 Prometheus
     │
-    ├──────────────► Grafana
+    ├──────────► Grafana
     │
     ▼
 PrometheusRule
-    │
     ▼
 Alertmanager
-    │
     ▼
 Discord
-```
 
----
+Prometheus successfully scrapes application metrics both in the local Kubernetes environment and on Amazon EKS.
 
-# Prometheus
+Grafana
 
-The application exposes:
+Grafana dashboards visualize:
 
-```text
-/metrics
-```
+Application availability
+CPU utilization
+Memory usage
+Replica count
+Pod restart count
+HPA current replicas
+HPA desired replicas
+HTTP request rate
+HTTP errors
+Application latency
+SLO availability
+Error budget
+Error budget burn rate
 
-Prometheus discovers the application through a Kubernetes `ServiceMonitor`.
+Dashboards are stored as code and provisioned using ConfigMaps.
 
-Check ServiceMonitor:
+Alerting
 
-```powershell
-kubectl get servicemonitor -A
-```
+Prometheus alert rules include:
 
-Check Prometheus:
-
-```powershell
-kubectl get prometheus -n monitoring
-```
-
-Port-forward Prometheus:
-
-```powershell
-kubectl port-forward `
-  svc/monitoring-kube-prometheus-prometheus `
-  -n monitoring `
-  9090:9090
-```
-
-Open:
-
-```text
-http://localhost:9090
-```
-
----
-
-# Grafana Dashboard
-
-Grafana is used to visualize both application and Kubernetes metrics.
-
-Dashboard panels include:
-
-- Application Availability
-- Healthy Targets
-- Available Replicas
-- Desired Replicas
-- CPU Utilization
-- Memory Usage
-- Application Replica Count
-- Pod Restart Count
-- Pod Status
-- HPA Current Replicas
-- HPA Desired Replicas
-
-Port-forward Grafana:
-
-```powershell
-kubectl port-forward `
-  svc/monitoring-grafana `
-  -n monitoring `
-  3000:80
-```
-
-Open:
-
-```text
-http://localhost:3000
-```
-
----
-
-# Grafana Dashboard as Code
-
-The Grafana dashboard is exported and stored inside the repository:
-
-```text
-monitoring/grafana/dashboard/devops-app-dashboard.json
-```
-
-A Kubernetes ConfigMap is used to provision the dashboard:
-
-```text
-monitoring/grafana/dashboard/devops-app-dashboard-configmap.yaml
-```
-
-The ConfigMap contains:
-
-```yaml
-metadata:
-  labels:
-    grafana_dashboard: "1"
-```
-
-The Grafana sidecar automatically discovers ConfigMaps with this label and loads the dashboard.
-
-Architecture:
-
-```text
-Git Repository
-      │
-      ▼
-Dashboard JSON
-      │
-      ▼
-Kubernetes ConfigMap
-      │
-      ▼
-Grafana Dashboard Sidecar
-      │
-      ▼
-Grafana Dashboard
-```
-
-This approach allows the dashboard to be version-controlled and restored automatically.
-
----
-
-# Custom Prometheus Alerts
-
-Three application-level alerts were implemented.
-
-## High CPU
-
-```text
 DevOpsAppHighCPU
-```
-
-Triggers when application CPU exceeds the configured threshold for more than two minutes.
-
-Final threshold:
-
-```text
-CPU > 80%
-```
-
----
-
-## Pod Restart
-
-```text
 DevOpsAppPodRestarting
-```
-
-Detects container restarts during a recent monitoring window.
-
-This alert was validated by intentionally restarting the application container.
-
----
-
-## Application Target Down
-
-```text
 DevOpsAppTargetDown
-```
 
-Detects both:
+Alerts are routed:
 
-- Prometheus scrape failure
-- Complete disappearance of the application target
-
-The rule uses both:
-
-```promql
-up{namespace="dev",job="devops-app"} == 0
-```
-
-and:
-
-```promql
-absent(up{namespace="dev",job="devops-app"})
-```
-
-This prevents missing alerts when the Service has no EndpointSlice targets.
-
----
-
-# Alert Lifecycle Testing
-
-The custom alerts were tested end-to-end.
-
-```text
-Normal
-  ↓
-Condition detected
-  ↓
-PENDING
-  ↓
-FIRING
-  ↓
-Alertmanager
-  ↓
-Discord Notification
-  ↓
-Issue resolved
-  ↓
-RESOLVED
-```
-
-Validated alerts:
-
-| Alert | Prometheus | Alertmanager | Discord |
-|---|---|---|---|
-| High CPU | ✅ | ✅ | ✅ |
-| Pod Restart | ✅ | ✅ | ✅ |
-| Target Down | ✅ | ✅ | ✅ |
-
----
-
-# Alertmanager
-
-Alertmanager receives alerts generated by Prometheus.
-
-Port-forward:
-
-```powershell
-kubectl port-forward `
-  svc/monitoring-kube-prometheus-alertmanager `
-  -n monitoring `
-  9093:9093
-```
-
-Open:
-
-```text
-http://localhost:9093
-```
-
----
-
-# Discord Notification
-
-Application alerts are routed from Alertmanager to Discord.
-
-```text
 Prometheus
-    ↓
-PrometheusRule
-    ↓
+   ↓
 Alertmanager
-    ↓
+   ↓
 AlertmanagerConfig
-    ↓
+   ↓
 Discord Webhook
+
+Both FIRING and RESOLVED notifications were successfully validated.
+
+Centralized Logging
+
+Centralized logging uses:
+
+Pod stdout/stderr
+      ↓
+Grafana Alloy
+      ↓
+Loki
+      ↓
+Grafana
+
+The application emits structured JSON logs containing:
+
+timestamp
+method
+path
+status
+duration_ms
+
+Example LogQL:
+
+{namespace="dev", pod=~"devops-app-.*"} | json
+
+Logging dashboards include:
+
+Application Log Volume
+HTTP Request Rate
+Log Volume by Pod
+Application Logs
+HTTP Errors
+Slow Requests
+SLO and Error Budget
+
+The project implements production-style Service Level Objectives.
+
+Availability target:
+
+99.9%
+
+Allowed error budget:
+
+0.1%
+
+Latency objective:
+
+p95 < 250 ms
+
+A second latency SLO measures the percentage of requests completing below 500 ms.
+
+Implemented recording rules:
+
+devops_app:http_error_rate:5m
+devops_app:availability:5m
+devops_app:latency_p95_seconds:5m
+devops_app:latency_slo_ratio:5m
+Error Budget Burn Rate
+
+Burn rate is calculated using:
+
+devops_app:http_error_rate:5m / 0.001
+
+Interpretation:
+
+0x      No error budget consumption
+1x      Consuming at allowed SLO rate
+>6x     Warning
+>14.4x  Critical
+
+Alerts:
+
+DevOpsAppWarningErrorBudgetBurn
+DevOpsAppHighErrorBudgetBurn
+
+An intentional /error endpoint was used to generate HTTP 500 responses and validate the complete alert lifecycle.
+
+Terraform Infrastructure as Code
+
+AWS infrastructure is managed through Terraform.
+
+Resources include:
+
+VPC
+Public Subnets
+Private Subnets
+Internet Gateway
+Route Tables
+IAM Roles
+IAM Policies
+EKS Control Plane
+Managed Node Group
+EKS Access Entries
+OIDC Provider
+AWS Load Balancer Controller IAM Role
+S3 Terraform State Backend
+
+Typical workflow:
+
+terraform init
+terraform fmt
+terraform validate
+terraform plan
+terraform apply
+
+Terraform was also tested using:
+
+terraform destroy
+
+followed by:
+
+terraform apply
+
+to verify that the infrastructure could be reproducibly recreated from code.
+
+Amazon EKS
+
+The application has successfully migrated from a local Kind cluster to Amazon EKS.
+
+Implemented components:
+
+EKS Control Plane
+Managed Node Group
+Kubernetes access using EKS Access Entries
+Helm application deployment
+Prometheus monitoring
+Argo CD
+AWS Load Balancer Controller
+Application Load Balancer
+
+Worker nodes were scaled when the cluster reached pod scheduling limits while deploying the full monitoring and GitOps stack.
+
+This provided hands-on experience with Kubernetes capacity planning.
+
+AWS Load Balancer Controller
+
+AWS Load Balancer Controller is integrated with EKS using:
+
+EKS OIDC Provider
+      ↓
+IAM Role
+      ↓
+IRSA
+      ↓
+Kubernetes ServiceAccount
+      ↓
+AWS Load Balancer Controller
+
+The application Ingress uses:
+
+alb.ingress.kubernetes.io/scheme: internet-facing
+alb.ingress.kubernetes.io/target-type: ip
+alb.ingress.kubernetes.io/healthcheck-path: /health
+
+The controller automatically provisions an AWS Application Load Balancer.
+
+Final traffic flow:
+
+Internet
+   ↓
+AWS Application Load Balancer
+   ↓
+Kubernetes Ingress
+   ↓
+Service
+   ↓
+Application Pod
+
+The application was successfully accessed publicly through the ALB DNS endpoint.
+
+Terraform Remote State
+
+Terraform state is stored remotely using Amazon S3.
+
+Developer
     ↓
-#devops-alerts
-```
+Terraform
+    ↓
+Amazon S3
+    ↓
+eks/dev/terraform.tfstate
 
-The webhook URL is **not stored directly in Git**.
+The backend implements:
 
-Instead, it is stored as a Kubernetes Secret:
+Remote state storage
+Server-side encryption
+S3 versioning
+Public access blocking
+State locking
+
+Local .tfstate files and .terraform/ are excluded from Git.
+
+The provider lock file:
+
+.terraform.lock.hcl
+
+is committed to ensure reproducible provider versions.
+
+Troubleshooting Experience
+
+A major part of this project involved troubleshooting real infrastructure issues.
+
+Examples include:
+
+ImagePullBackOff
+CrashLoopBackOff
+Pending Pods
+ResourceQuota
+Helm configuration conflicts
+Kubernetes probes
+NetworkPolicy
+Prometheus target discovery
+ServiceMonitor configuration
+Alertmanager routing
+HPA and Argo CD replica conflicts
+Grafana datasource issues
+Loki filesystem configuration
+LogQL compatibility
+Jenkins agents missing Node.js
+Kubernetes ephemeral Jenkins agents
+Kaniko container builds
+Trivy security failures
+Git push conflicts caused by automated GitOps commits
+Argo CD reconciliation
+EKS authentication
+EKS Access Entries
+AWS VPC quota limits
+EKS pod density limits
+IAM OIDC connectivity
+AWS Load Balancer Controller IRSA
+ALB Ingress reconciliation
+Terraform state migration
+
+One specific network issue caused the default AWS IAM endpoint to fail TLS negotiation while other AWS services remained reachable.
+
+The project was adapted to use the AWS IAM global API endpoint through a dedicated Terraform provider configuration.
+
+This troubleshooting process provided practical experience beyond simply deploying predefined manifests.
+
+Security Practices
+
+Current security practices include:
+
+Kubernetes RBAC
+NetworkPolicy
+Dedicated ServiceAccounts
+Container security scanning
+Git SHA immutable image tags
+IRSA for AWS workload identity
+Kubernetes Secret usage
+No AWS credentials committed to Git
+Terraform remote state encryption
+S3 public access blocking
+GitOps-controlled deployments
+
+Future hardening includes:
+
+runAsNonRoot
+readOnlyRootFilesystem
+Drop Linux capabilities
+Seccomp
+Pod Security Standards
+External Secrets / Sealed Secrets
+PodDisruptionBudget
+Pod anti-affinity
+Topology spread constraints
+Infrastructure Reproducibility
+
+One of the important goals of this project is reproducibility.
+
+Infrastructure can be removed:
+
+terraform destroy
+
+and recreated using:
+
+terraform apply
+
+After the EKS cluster is created:
+
+aws eks update-kubeconfig `
+  --region ap-southeast-1 `
+  --name devops-kubernetes-project-eks
+
+GitOps and Helm are then used to restore application workloads.
+
+This demonstrates the Infrastructure as Code principle:
+
+Infrastructure should be reproducible from source code,
+not dependent on manually created resources.
+Key Skills Demonstrated
+
+This project demonstrates hands-on experience with:
+
+Linux containers
+Docker
+Kubernetes
+Helm
+Kubernetes networking
+Autoscaling
+RBAC
+Monitoring
+Alerting
+Centralized logging
+SLO engineering
+CI/CD
+DevSecOps
+Jenkins
+GitHub Actions
+GitOps
+Argo CD
+Infrastructure as Code
+Terraform
+AWS VPC
+AWS IAM
+Amazon EKS
+AWS Application Load Balancer
+IRSA / OIDC
+Terraform remote state
+Troubleshooting distributed systems
+Next Phase
+
+The next learning phase will focus on:
+
+Ansible
+
+Planned topics:
+
+Inventory
+Playbooks
+Variables
+Handlers
+Roles
+Idempotency
+Package management
+Configuration management
+Server bootstrap
+
+After Ansible:
+
+Production Hardening
+↓
+Advanced GitOps
+↓
+Secret Management
+↓
+Reliability Testing
+↓
+Final Portfolio Documentation
+Learning Objective
+
+This repository represents a progressive learning journey toward production-oriented DevOps engineering.
+
+The project intentionally combines:
+
+Application
++
+Containers
++
+Kubernetes
++
+CI/CD
++
+GitOps
++
+Observability
++
+Security
++
+Infrastructure as Code
++
+AWS Cloud
+
+rather than treating each technology as an isolated exercise.
+
+The goal is to understand how these components work together as a complete delivery and operations platform.
+
+
+### Yang paling penting berubah dari README lama
+
+README lama masih menggambarkan arsitektur utama seperti:
 
 ```text
-discord-webhook
-```
+Developer → Docker → Kind → NGINX Ingress
 
-The Alertmanager configuration only references:
+Sekarang project kamu sudah jauh berkembang menjadi:
 
-```yaml
-apiURL:
-  name: discord-webhook
-  key: url
-```
+GitHub
+   ↓
+Jenkins / GitHub Actions
+   ↓
+Docker + Kaniko + Trivy
+   ↓
+GitOps
+   ↓
+Argo CD
+   ↓
+Amazon EKS
+   ↓
+AWS ALB
+   ↓
+Application
 
-This prevents sensitive webhook credentials from being committed to the repository.
+ditambah observability:
 
----
+Prometheus + Grafana
+Loki + Alloy
+Alertmanager + Discord
+SLO + Error Budget
 
-# Example Monitoring Scenario
+dan infrastructure:
 
-One complete test scenario implemented in this project:
-
-```text
-Load Generator
-      ↓
-HTTP Request Load
-      ↓
-Application CPU increases
-      ↓
-HPA detects CPU > 50%
-      ↓
-Application scales from 2 → 10 Pods
-      ↓
-Prometheus collects application metrics
-      ↓
-Grafana visualizes CPU and replica changes
-      ↓
-PrometheusRule evaluates alert condition
-      ↓
-Alertmanager receives FIRING alert
-      ↓
-Discord receives notification
-```
-
-When the load is stopped:
-
-```text
-Load Generator → 0 replicas
-        ↓
-CPU decreases
-        ↓
-Alert resolves
-        ↓
-Discord receives RESOLVED notification
-        ↓
-HPA eventually scales back toward 2 replicas
-```
-
----
-
-# Troubleshooting Experience
-
-This project also included hands-on troubleshooting for several Kubernetes scenarios:
-
-- `ImagePullBackOff`
-- `CrashLoopBackOff`
-- Pending Pods
-- ResourceQuota issues
-- Helm configuration conflicts
-- ServiceMonitor discovery issues
-- Prometheus target discovery
-- Prometheus Operator RBAC
-- Prometheus configuration reload
-- Alert rule validation
-- Alertmanager routing
-- Discord webhook configuration
-- Service selector and EndpointSlice behavior
-- HPA scale-up and scale-down behavior
-- Windows PowerShell quoting and YAML/JSON handling
-
-Troubleshooting these problems was an important part of understanding how Kubernetes and Prometheus Operator work internally.
-
----
-
-# Useful Commands
-
-## Kubernetes
-
-```powershell
-kubectl get pods -A
-kubectl get svc -A
-kubectl get deployment -A
-kubectl get hpa -A
-kubectl top pods -n dev
-```
-
-## Monitoring
-
-```powershell
-kubectl get prometheus -n monitoring
-kubectl get servicemonitor -A
-kubectl get prometheusrule -A
-kubectl get alertmanager -n monitoring
-kubectl get alertmanagerconfig -A
-```
-
-## Helm
-
-```powershell
-helm list -A
-helm lint .\helm\devops-app
-helm template devops-app .\helm\devops-app
-```
-
----
-
-# Security Considerations
-
-Sensitive information must never be committed to this repository.
-
-Do not commit:
-
-- Discord Webhook URLs
-- Kubernetes Secret values
-- Tokens
-- Passwords
-- Cloud credentials
-- kubeconfig files
-
-Secrets should be created directly inside Kubernetes or injected through a secure secret-management mechanism.
-
----
-
-# Key Learning Outcomes
-
-Through this project I gained practical experience with:
-
-- Kubernetes workload lifecycle management
-- Docker container deployment
-- Kubernetes Services and networking
-- Health checks and self-healing
-- Resource management
-- Horizontal autoscaling
-- Kubernetes RBAC
-- Network isolation
-- Persistent storage
-- Helm templating
-- Prometheus metrics
-- Kubernetes ServiceMonitor
-- PromQL
-- Grafana dashboards
-- Prometheus alert rules
-- Alertmanager routing
-- Discord notification integration
-- Failure simulation
-- Load testing
-- Observability
-- Troubleshooting Kubernetes environments
-
----
-
-# Project Status
-
-### Kubernetes Core
-
-- [x] Kubernetes cluster
-- [x] Application Deployment
-- [x] Service
-- [x] ConfigMap
-- [x] Secret
-- [x] Health probes
-- [x] Resource Requests and Limits
-- [x] Rolling Update and Rollback
-- [x] HPA
-- [x] Metrics Server
-- [x] NGINX Ingress
-- [x] NetworkPolicy
-- [x] ResourceQuota
-- [x] RBAC
-- [x] Persistent Storage
-- [x] Helm Chart
-
-### Observability
-
-- [x] Prometheus
-- [x] ServiceMonitor
-- [x] Application Metrics
-- [x] Grafana
-- [x] Custom Grafana Dashboard
-- [x] Dashboard provisioning
-- [x] PrometheusRule
-- [x] Alertmanager
-- [x] High CPU Alert
-- [x] Pod Restart Alert
-- [x] Target Down Alert
-- [x] Discord Notification
-- [x] Alert recovery testing
-
----
-
-# Future Improvements
-
-The next stages of this project may include:
-
-- GitOps with Argo CD
-- CI/CD Pipeline
-- Jenkins integration
-- Advanced Grafana dashboards
-- Loki for centralized logging
-- Distributed tracing
-- AWS Kubernetes deployment
-- Terraform infrastructure provisioning
-- Ansible configuration management
-- TLS and HTTPS
-- External Secrets
-- Production-grade ingress
-- Persistent Prometheus storage
-- SLO / SLI monitoring
-- GitHub Actions
-- Security scanning
-- Kubernetes policy enforcement
-
----
-
-# Author
-
-**Aldo**
-
-Aspiring DevOps Engineer focused on:
-
-- Kubernetes
-- AWS
-- Infrastructure Automation
-- CI/CD
-- Observability
-- Infrastructure as Code
-
----
-
-## Summary
-
-This project demonstrates an end-to-end Kubernetes DevOps workflow covering:
-
-**Deployment → Security → Scaling → Monitoring → Alerting → Notification**
-
-rather than only deploying an application into a Kubernetes cluster.
+Terraform
+↓
+VPC
+IAM
+EKS
+Node Group
+OIDC / IRSA
+S3 Remote State
