@@ -11,6 +11,9 @@ npm-debug.log
 *.tfstate
 *.tfstate.*
 .terraform.lock.hcl
+*.tfplan
+crash.log
+crash.*.log
 
 # Kubernetes
 *.log
