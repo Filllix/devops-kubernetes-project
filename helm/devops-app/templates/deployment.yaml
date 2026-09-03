@@ -61,7 +61,7 @@ spec:
 
           envFrom:
             - configMapRef:
-                name: {{ include "devops-app.fullname" . }}
+                name: {{ include "devops-app.fullname" . }}-config
             - secretRef:
                 name: {{ .Values.secret.existingSecret }}
 
