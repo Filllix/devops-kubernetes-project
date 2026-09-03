@@ -44,7 +44,7 @@ ingress:
 
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80},{"HTTPS":443}]'
 
-    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:ap-southeast-1:749559065231:certificate/8c09e4f1-88ed-4d18-a766-36b5012d7d5
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:ap-southeast-1:749559065231:certificate/8c09e4f1-88ed-4d18-a766-36b5012d7d5a
 
     alb.ingress.kubernetes.io/ssl-redirect: "443"
 
