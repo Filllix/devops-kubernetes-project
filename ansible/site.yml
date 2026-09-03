@@ -1,0 +1,11 @@
+---
+- name: Configure DevOps Management Host
+  hosts: management
+  become: true
+
+  roles:
+    - common
+    - devops-tools
+    - docker
+    - devops-cli-tools
+    - nginx

@@ -1,0 +1,9 @@
+---
+- name: First Ansible Playbook
+  hosts: local
+  become: true
+
+  tasks:
+    - name: Update APT package cache
+      ansible.builtin.apt:
+        update_cache: true

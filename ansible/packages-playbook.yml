@@ -1,0 +1,15 @@
+---
+- name: Install DevOps Packages
+  hosts: local
+  become: true
+
+  tasks:
+    - name: Install required packages
+      ansible.builtin.apt:
+        name:
+          - git
+          - curl
+          - unzip
+          - jq
+        state: present
+        update_cache: true

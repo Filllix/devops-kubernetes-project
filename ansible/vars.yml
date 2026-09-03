@@ -1,0 +1,6 @@
+---
+devops_packages:
+  - git
+  - curl
+  - unzip
+  - jq

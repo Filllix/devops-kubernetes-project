@@ -1,0 +1,32 @@
+---
+- name: Ensure Nginx is installed
+  ansible.builtin.apt:
+    name: nginx
+    state: present
+
+- name: Deploy Nginx configuration
+  ansible.builtin.template:
+    src: default.conf.j2
+    dest: /etc/nginx/sites-available/default
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart Nginx
+
+- name: Deploy custom index page
+  ansible.builtin.copy:
+    content: |
+      <html>
+        <head>
+          <title>Ansible DevOps Lab</title>
+        </head>
+        <body>
+          <h1>Nginx configured using Ansible Roles</h1>
+        </body>
+      </html>
+    dest: /var/www/html/index.html
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart Nginx
+

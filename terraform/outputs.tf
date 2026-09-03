@@ -51,3 +51,13 @@ output "eks_node_group_name" {
 output "alb_controller_role_arn" {
   value = aws_iam_role.alb_controller.arn
 }
+
+output "ansible_host_public_ip" {
+  description = "Public IP address of the Ansible management host"
+  value       = aws_instance.ansible_host.public_ip
+}
+
+output "ansible_host_public_dns" {
+  description = "Public DNS address of the Ansible management host"
+  value       = aws_instance.ansible_host.public_dns
+}

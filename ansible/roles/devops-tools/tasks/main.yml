@@ -1,0 +1,6 @@
+---
+- name: Install DevOps utility packages
+  ansible.builtin.apt:
+    name: "{{ devops_packages }}"
+    state: present
+    update_cache: true
