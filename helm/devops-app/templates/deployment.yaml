@@ -7,7 +7,7 @@ metadata:
 
 spec:
   {{- if not .Values.autoscaling.enabled }}
-    replicas: {{ .Values.replicaCount }}
+  replicas: {{ .Values.replicaCount }}
   {{- end }}
 
   selector:
@@ -22,8 +22,34 @@ spec:
     spec:
       serviceAccountName: {{ include "devops-app.fullname" . }}
 
+      terminationGracePeriodSeconds: {{ .Values.terminationGracePeriodSeconds }}
+
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+
+      {{- if .Values.topologySpreadConstraints.enabled }}
+      topologySpreadConstraints:
+        - maxSkew: {{ .Values.topologySpreadConstraints.maxSkew }}
+          topologyKey: {{ .Values.topologySpreadConstraints.topologyKey }}
+          whenUnsatisfiable: {{ .Values.topologySpreadConstraints.whenUnsatisfiable }}
+          labelSelector:
+            matchLabels:
+              {{- include "devops-app.selectorLabels" . | nindent 14 }}
+      {{- end }}
+
       containers:
         - name: devops-app
+
+          {{- if .Values.lifecycle.preStop.enabled }}
+          lifecycle:
+            preStop:
+              exec:
+                command:
+                  {{- toYaml .Values.lifecycle.preStop.command | nindent 18 }}
+          {{- end }}
+
+          securityContext:
+            {{- toYaml .Values.containerSecurityContext | nindent 12 }}
 
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
@@ -31,12 +57,13 @@ spec:
           ports:
             - name: http
               containerPort: 3000
+              protocol: TCP
 
           envFrom:
             - configMapRef:
-                name: {{ include "devops-app.fullname" . }}-config
+                name: {{ include "devops-app.fullname" . }}
             - secretRef:
-                name: {{ include "devops-app.fullname" . }}-secret
+                name: {{ .Values.secret.existingSecret }}
 
           livenessProbe:
             httpGet:
